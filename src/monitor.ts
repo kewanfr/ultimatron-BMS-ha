@@ -207,7 +207,7 @@ function publishBatteryStateHA(
   );
   client.publish(
     `homeassistant/sensor/${battery.name}_power/state`,
-    state.powerDrain.toString()
+    state.powerDrain.toFixed(0).toString()
   );
   client.publish(
     `homeassistant/switch/${battery.name}_discharge/state`,
