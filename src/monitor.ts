@@ -196,7 +196,7 @@ function publishBatteryStateHA(
   );
   client.publish(
     `homeassistant/sensor/${battery.name}_current/state`,
-    state.current.toString()
+    state.current.toFixed(2).toString()
   );
   client.publish(
     `homeassistant/sensor/${battery.name}_actual_capacity/state`,
@@ -229,7 +229,7 @@ function publishBatteryStateHA(
     60000,
     2,
     false,
-    10 * 60 * 1000 * 10
+    10 * 60 * 1000
   );
 
   if (batteries.length < 2) {
@@ -276,7 +276,7 @@ function publishBatteryStateHA(
     const state2 = await batteries[1].getLastState();
     if (state2) publishBatteryStateHA(batteries[1], state2);
     // console.log(batteries[1].name, state2);
-  }, 5 * 60 * 1000);
+  }, 2 * 60 * 1000);
 
   // batteries[0].onStateUpdate(async (state: BatteryState) => {
   //   console.log("[mqtt] status updated");
