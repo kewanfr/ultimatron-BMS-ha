@@ -61,6 +61,17 @@ function batteryDiscoveredHA(battery) {
             name: `Ultimatron battery ${battery.name}`,
         },
     }));
+    client.publish(`homeassistant/sensor/${battery.name}_voltage/config`, JSON.stringify({
+        name: `Ultimatron ${batteryName} voltage, V`,
+        device_class: "voltage",
+        unit_of_measurement: "V",
+        state_topic: `homeassistant/sensor/${battery.name}_voltage/state`,
+        unique_id: `${battery.name}_voltage`,
+        device: {
+            identifiers: [battery.name],
+            name: `Ultimatron battery ${battery.name}`,
+        },
+    }));
     client.publish(`homeassistant/sensor/${battery.name}_actual_capacity/config`, JSON.stringify({
         name: `Ultimatron ${batteryName} actual capacity, Ah`,
         device_class: "energy",
@@ -140,12 +151,16 @@ function subscribeToBatteryChanges(battery) {
 }
 function publishBatteryStateHA(battery, state) {
     var _a, _b;
-    console.log("Publish", battery.commonName, `${state.residualCapacityPercent.toString()} %, ${state.current.toString()} A, ${state.residualCapacity.toString()} Ah, ${state.powerDrain.toString()} W`);
+    const power = (state.voltage * state.current).toFixed(2);
+    console.log("Publish", battery.commonName, `${state.residualCapacityPercent.toString()} %, ${state.current
+        .toFixed(2)
+        .toString()} A, ${state.residualCapacity.toString()} Ah, ${state.powerDrain.toString()} W`);
     client.publish(`homeassistant/sensor/${battery.name}_capacity/state`, state.residualCapacityPercent.toString());
     client.publish(`homeassistant/sensor/${battery.name}_current/state`, state.current.toFixed(2).toString());
+    client.publish(`homeassistant/sensor/${battery.name}_voltage/state`, state.voltage.toFixed(2).toString());
     client.publish(`homeassistant/sensor/${battery.name}_actual_capacity/state`, state.residualCapacity.toFixed(1).toString());
     client.publish(`homeassistant/sensor/${battery.name}_design_capacity/state`, state.standardCapacity.toString());
-    client.publish(`homeassistant/sensor/${battery.name}_power/state`, state.powerDrain.toFixed(0).toString());
+    client.publish(`homeassistant/sensor/${battery.name}_power/state`, power.toString());
     client.publish(`homeassistant/switch/${battery.name}_discharge/state`, state.status.discharing ? "ON" : "OFF");
     client.publish(`homeassistant/switch/${battery.name}_charge/state`, state.status.charging ? "ON" : "OFF");
     client.publish(`homeassistant/sensor/${battery.name}_temperature/state`, (_b = (_a = state.temperatures[0]) === null || _a === void 0 ? void 0 : _a.toFixed(2)) === null || _b === void 0 ? void 0 : _b.toString());
