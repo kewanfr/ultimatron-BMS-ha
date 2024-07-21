@@ -28,7 +28,8 @@ function batteryDiscoveredHA(battery: UltimatronBattery) {
   client.publish(
     `homeassistant/sensor/${battery.name}_capacity/config`,
     JSON.stringify({
-      name: `Ultimatron ${batteryName} percentage`,
+      name: `Ultimatron ${batteryName} percentage, %`,
+      unit_of_measurement: "%",
       device_class: "battery",
       state_topic: `homeassistant/sensor/${battery.name}_capacity/state`,
       unique_id: `${battery.name}_capacity`,
