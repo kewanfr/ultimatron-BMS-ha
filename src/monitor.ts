@@ -76,6 +76,21 @@ function batteryDiscoveredHA(battery: UltimatronBattery) {
   );
 
   client.publish(
+    `homeassistant/sensor/${battery.name}_voltage/config`,
+    JSON.stringify({
+      name: `Ultimatron ${batteryName} voltage, V`,
+      device_class: "voltage",
+      unit_of_measurement: "V",
+      state_topic: `homeassistant/sensor/${battery.name}_voltage/state`,
+      unique_id: `${battery.name}_voltage`,
+      device: {
+        identifiers: [battery.name],
+        name: `Ultimatron battery ${battery.name}`,
+      },
+    })
+  );
+
+  client.publish(
     `homeassistant/sensor/${battery.name}_actual_capacity/config`,
     JSON.stringify({
       name: `Ultimatron ${batteryName} actual capacity, Ah`,
@@ -184,10 +199,13 @@ function publishBatteryStateHA(
   battery: UltimatronBattery,
   state: BatteryState
 ) {
+  const power = (state.voltage * state.current).toFixed(2);
   console.log(
     "Publish",
     battery.commonName,
-    `${state.residualCapacityPercent.toString()} %, ${state.current.toString()} A, ${state.residualCapacity.toString()} Ah, ${state.powerDrain.toString()} W`
+    `${state.residualCapacityPercent.toString()} %, ${state.current
+      .toFixed(2)
+      .toString()} A, ${state.residualCapacity.toString()} Ah, ${state.powerDrain.toString()} W`
   );
 
   client.publish(
@@ -199,6 +217,10 @@ function publishBatteryStateHA(
     state.current.toFixed(2).toString()
   );
   client.publish(
+    `homeassistant/sensor/${battery.name}_voltage/state`,
+    state.voltage.toFixed(2).toString()
+  );
+  client.publish(
     `homeassistant/sensor/${battery.name}_actual_capacity/state`,
     state.residualCapacity.toFixed(1).toString()
   );
@@ -208,7 +230,7 @@ function publishBatteryStateHA(
   );
   client.publish(
     `homeassistant/sensor/${battery.name}_power/state`,
-    state.powerDrain.toFixed(0).toString()
+    power.toString()
   );
   client.publish(
     `homeassistant/switch/${battery.name}_discharge/state`,
