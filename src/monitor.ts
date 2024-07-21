@@ -205,7 +205,7 @@ function publishBatteryStateHA(
     battery.commonName,
     `${state.residualCapacityPercent.toString()} %, ${state.current
       .toFixed(2)
-      .toString()} A, ${state.residualCapacity.toString()} Ah, ${state.powerDrain.toString()} W`
+      .toString()} A, ${state.residualCapacity.toString()} Ah, ${state.powerDrain.toString()} W, ${power} W`
   );
 
   client.publish(

@@ -154,7 +154,7 @@ function publishBatteryStateHA(battery, state) {
     const power = (state.voltage * state.current).toFixed(2);
     console.log("Publish", battery.commonName, `${state.residualCapacityPercent.toString()} %, ${state.current
         .toFixed(2)
-        .toString()} A, ${state.residualCapacity.toString()} Ah, ${state.powerDrain.toString()} W`);
+        .toString()} A, ${state.residualCapacity.toString()} Ah, ${state.powerDrain.toString()} W, ${power} W`);
     client.publish(`homeassistant/sensor/${battery.name}_capacity/state`, state.residualCapacityPercent.toString());
     client.publish(`homeassistant/sensor/${battery.name}_current/state`, state.current.toFixed(2).toString());
     client.publish(`homeassistant/sensor/${battery.name}_voltage/state`, state.voltage.toFixed(2).toString());
