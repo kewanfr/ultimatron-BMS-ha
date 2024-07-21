@@ -199,7 +199,7 @@ function publishBatteryStateHA(
   battery: UltimatronBattery,
   state: BatteryState
 ) {
-  const power = (state.voltage * state.current).toFixed(2);
+  const power = (state.voltage * state.current).toFixed(0);
   console.log(
     "Publish",
     battery.commonName,

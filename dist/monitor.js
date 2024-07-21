@@ -151,7 +151,7 @@ function subscribeToBatteryChanges(battery) {
 }
 function publishBatteryStateHA(battery, state) {
     var _a, _b;
-    const power = (state.voltage * state.current).toFixed(2);
+    const power = (state.voltage * state.current).toFixed(0);
     console.log("Publish", battery.commonName, `${state.residualCapacityPercent.toString()} %, ${state.current
         .toFixed(2)
         .toString()} A, ${state.residualCapacity.toString()} Ah, ${state.powerDrain.toString()} W, ${power} W`);
