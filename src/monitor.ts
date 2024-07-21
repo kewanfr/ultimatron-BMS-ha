@@ -200,7 +200,7 @@ function publishBatteryStateHA(
   );
   client.publish(
     `homeassistant/sensor/${battery.name}_actual_capacity/state`,
-    state.residualCapacity.toString()
+    state.residualCapacity.toFixed(1).toString()
   );
   client.publish(
     `homeassistant/sensor/${battery.name}_design_capacity/state`,
@@ -220,8 +220,20 @@ function publishBatteryStateHA(
   );
   client.publish(
     `homeassistant/sensor/${battery.name}_temperature/state`,
-    state.temperatures[0]?.toString()
+    state.temperatures[0]?.toFixed(2)?.toString()
   );
+}
+
+async function updateDatas(batteries: UltimatronBattery[]) {
+  await batteries[0].polling();
+  const state1 = await batteries[0].getLastState();
+  if (state1) publishBatteryStateHA(batteries[0], state1);
+  // console.log(batteries[0].name, state1);
+
+  await batteries[1].polling();
+  const state2 = await batteries[1].getLastState();
+  if (state2) publishBatteryStateHA(batteries[1], state2);
+  // console.log(batteries[1].name, state2);
 }
 
 (async () => {
@@ -256,27 +268,22 @@ function publishBatteryStateHA(
   batteryDiscoveredHA(batteries[1]);
   subscribeToBatteryChanges(batteries[1]);
 
-  await batteries[0].polling();
-  const state1 = await batteries[0].getLastState();
-  if (state1) publishBatteryStateHA(batteries[0], state1);
-  // console.log(batteries[0].name, state1);
-
-  await batteries[1].polling();
-  const state2 = await batteries[1].getLastState();
-  if (state2) publishBatteryStateHA(batteries[1], state2);
-  // console.log(batteries[1].name, state2);
-
+  await updateDatas(batteries);
   setInterval(async () => {
-    await batteries[0].polling();
-    const state1 = await batteries[0].getLastState();
-    if (state1) publishBatteryStateHA(batteries[0], state1);
-    // console.log(batteries[0].name, state1);
-
-    await batteries[1].polling();
-    const state2 = await batteries[1].getLastState();
-    if (state2) publishBatteryStateHA(batteries[1], state2);
-    // console.log(batteries[1].name, state2);
+    await updateDatas(batteries);
   }, 2 * 60 * 1000);
+
+  client.subscribe(`ultimatron`, async (err: Error) => {
+    console.log("[mqtt] Subscribed to discharge events", err);
+
+    client.on("message", (topic: string, message: Buffer) => {
+      // console.log("[mqtt]> " + topic, message.toString("utf8"));
+      if (message.toString("utf8") === "reload") {
+        console.log("Refetch data");
+        updateDatas(batteries);
+      }
+    });
+  });
 
   // batteries[0].onStateUpdate(async (state: BatteryState) => {
   //   console.log("[mqtt] status updated");
