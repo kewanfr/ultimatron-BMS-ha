@@ -139,16 +139,28 @@ function subscribeToBatteryChanges(battery) {
     });
 }
 function publishBatteryStateHA(battery, state) {
-    var _a;
+    var _a, _b;
     console.log("Publish", battery.commonName, `${state.residualCapacityPercent.toString()} %, ${state.current.toString()} A, ${state.residualCapacity.toString()} Ah, ${state.powerDrain.toString()} W`);
     client.publish(`homeassistant/sensor/${battery.name}_capacity/state`, state.residualCapacityPercent.toString());
     client.publish(`homeassistant/sensor/${battery.name}_current/state`, state.current.toFixed(2).toString());
-    client.publish(`homeassistant/sensor/${battery.name}_actual_capacity/state`, state.residualCapacity.toString());
+    client.publish(`homeassistant/sensor/${battery.name}_actual_capacity/state`, state.residualCapacity.toFixed(1).toString());
     client.publish(`homeassistant/sensor/${battery.name}_design_capacity/state`, state.standardCapacity.toString());
     client.publish(`homeassistant/sensor/${battery.name}_power/state`, state.powerDrain.toFixed(0).toString());
     client.publish(`homeassistant/switch/${battery.name}_discharge/state`, state.status.discharing ? "ON" : "OFF");
     client.publish(`homeassistant/switch/${battery.name}_charge/state`, state.status.charging ? "ON" : "OFF");
-    client.publish(`homeassistant/sensor/${battery.name}_temperature/state`, (_a = state.temperatures[0]) === null || _a === void 0 ? void 0 : _a.toString());
+    client.publish(`homeassistant/sensor/${battery.name}_temperature/state`, (_b = (_a = state.temperatures[0]) === null || _a === void 0 ? void 0 : _a.toFixed(2)) === null || _b === void 0 ? void 0 : _b.toString());
+}
+async function updateDatas(batteries) {
+    await batteries[0].polling();
+    const state1 = await batteries[0].getLastState();
+    if (state1)
+        publishBatteryStateHA(batteries[0], state1);
+    // console.log(batteries[0].name, state1);
+    await batteries[1].polling();
+    const state2 = await batteries[1].getLastState();
+    if (state2)
+        publishBatteryStateHA(batteries[1], state2);
+    // console.log(batteries[1].name, state2);
 }
 (async () => {
     const batteries = await battery_1.UltimatronBattery.findAll(60000, 2, false, 10 * 60 * 1000);
@@ -169,28 +181,20 @@ function publishBatteryStateHA(battery, state) {
     subscribeToBatteryChanges(batteries[0]);
     batteryDiscoveredHA(batteries[1]);
     subscribeToBatteryChanges(batteries[1]);
-    await batteries[0].polling();
-    const state1 = await batteries[0].getLastState();
-    if (state1)
-        publishBatteryStateHA(batteries[0], state1);
-    // console.log(batteries[0].name, state1);
-    await batteries[1].polling();
-    const state2 = await batteries[1].getLastState();
-    if (state2)
-        publishBatteryStateHA(batteries[1], state2);
-    // console.log(batteries[1].name, state2);
+    await updateDatas(batteries);
     setInterval(async () => {
-        await batteries[0].polling();
-        const state1 = await batteries[0].getLastState();
-        if (state1)
-            publishBatteryStateHA(batteries[0], state1);
-        // console.log(batteries[0].name, state1);
-        await batteries[1].polling();
-        const state2 = await batteries[1].getLastState();
-        if (state2)
-            publishBatteryStateHA(batteries[1], state2);
-        // console.log(batteries[1].name, state2);
+        await updateDatas(batteries);
     }, 2 * 60 * 1000);
+    client.subscribe(`ultimatron`, async (err) => {
+        console.log("[mqtt] Subscribed to discharge events", err);
+        client.on("message", (topic, message) => {
+            // console.log("[mqtt]> " + topic, message.toString("utf8"));
+            if (message.toString("utf8") === "reload") {
+                console.log("Refetch data");
+                updateDatas(batteries);
+            }
+        });
+    });
     // batteries[0].onStateUpdate(async (state: BatteryState) => {
     //   console.log("[mqtt] status updated");
     //   console.log(batteries[0].name, state);
