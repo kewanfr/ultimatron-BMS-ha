@@ -79,7 +79,7 @@ function batteryDiscoveredHA(battery: UltimatronBattery) {
     `homeassistant/sensor/${battery.name}_actual_capacity/config`,
     JSON.stringify({
       name: `Ultimatron ${batteryName} actual capacity, Ah`,
-      device_class: "actual_capacity",
+      device_class: "energy",
       unit_of_measurement: "Ah",
       state_topic: `homeassistant/sensor/${battery.name}_actual_capacity/state`,
       unique_id: `${battery.name}_actual_capacity`,
@@ -94,7 +94,7 @@ function batteryDiscoveredHA(battery: UltimatronBattery) {
     `homeassistant/sensor/${battery.name}_design_capacity/config`,
     JSON.stringify({
       name: `Ultimatron ${batteryName} design capacity, Ah`,
-      device_class: "design_capacity",
+      device_class: "energy_storage",
       unit_of_measurement: "Ah",
       state_topic: `homeassistant/sensor/${battery.name}_design_capacity/state`,
       unique_id: `${battery.name}_design_capacity`,
