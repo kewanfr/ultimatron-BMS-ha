@@ -270,12 +270,12 @@ function publishBatteryStateHA(
     await batteries[0].polling();
     const state1 = await batteries[0].getLastState();
     if (state1) publishBatteryStateHA(batteries[0], state1);
-    console.log(batteries[0].name, state1);
+    // console.log(batteries[0].name, state1);
 
     await batteries[1].polling();
     const state2 = await batteries[1].getLastState();
     if (state2) publishBatteryStateHA(batteries[1], state2);
-    console.log(batteries[1].name, state2);
+    // console.log(batteries[1].name, state2);
   }, 5 * 60 * 1000);
 
   // batteries[0].onStateUpdate(async (state: BatteryState) => {
