@@ -158,7 +158,7 @@ function publishBatteryStateHA(battery, state) {
     client.publish(`homeassistant/sensor/${battery.name}_capacity/state`, state.residualCapacityPercent.toString());
     client.publish(`homeassistant/sensor/${battery.name}_current/state`, state.current.toFixed(2).toString());
     client.publish(`homeassistant/sensor/${battery.name}_voltage/state`, state.voltage.toFixed(2).toString());
-    client.publish(`homeassistant/sensor/${battery.name}_actual_capacity/state`, state.residualCapacity.toFixed(1).toString());
+    client.publish(`homeassistant/sensor/${battery.name}_actual_capacity/state`, state.residualCapacity.toFixed(0).toString());
     client.publish(`homeassistant/sensor/${battery.name}_design_capacity/state`, state.standardCapacity.toString());
     client.publish(`homeassistant/sensor/${battery.name}_power/state`, power.toString());
     client.publish(`homeassistant/switch/${battery.name}_discharge/state`, state.status.discharing ? "ON" : "OFF");
@@ -200,7 +200,7 @@ async function updateDatas(batteries) {
     setInterval(async () => {
         await updateDatas(batteries);
     }, 2 * 60 * 1000);
-    client.subscribe(`ultimatron`, async (err) => {
+    client.subscribe(`ultimatron/cmd`, async (err) => {
         console.log("[mqtt] Subscribed to discharge events", err);
         client.on("message", (topic, message) => {
             // console.log("[mqtt]> " + topic, message.toString("utf8"));

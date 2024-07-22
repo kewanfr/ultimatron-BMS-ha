@@ -222,7 +222,7 @@ function publishBatteryStateHA(
   );
   client.publish(
     `homeassistant/sensor/${battery.name}_actual_capacity/state`,
-    state.residualCapacity.toFixed(1).toString()
+    state.residualCapacity.toFixed(0).toString()
   );
   client.publish(
     `homeassistant/sensor/${battery.name}_design_capacity/state`,
@@ -295,7 +295,7 @@ async function updateDatas(batteries: UltimatronBattery[]) {
     await updateDatas(batteries);
   }, 2 * 60 * 1000);
 
-  client.subscribe(`ultimatron`, async (err: Error) => {
+  client.subscribe(`ultimatron/cmd`, async (err: Error) => {
     console.log("[mqtt] Subscribed to discharge events", err);
 
     client.on("message", (topic: string, message: Buffer) => {
