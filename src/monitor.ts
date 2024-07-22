@@ -293,7 +293,7 @@ async function updateDatas(batteries: UltimatronBattery[]) {
   await updateDatas(batteries);
   setInterval(async () => {
     await updateDatas(batteries);
-  }, 2 * 60 * 1000);
+  }, config.updateInterval || 2 * 60 * 1000); // 2 * 60 * 1000
 
   client.subscribe(`ultimatron/cmd`, async (err: Error) => {
     console.log("[mqtt] Subscribed to discharge events", err);

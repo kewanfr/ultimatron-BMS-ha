@@ -1,3 +1,4 @@
 {
-    "mqttUrl": "mqtt://192.168.1.75:1883"
+    "mqttUrl": "mqtt://192.168.1.75:1883",
+    "updateInterval": 60000
 }
