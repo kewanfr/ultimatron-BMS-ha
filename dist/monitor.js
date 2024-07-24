@@ -208,6 +208,10 @@ async function updateDatas(batteries) {
                 console.log("Refetch data");
                 updateDatas(batteries);
             }
+            else if (message.toString("utf8") === "sendConfs") {
+                batteryDiscoveredHA(batteries[0]);
+                batteryDiscoveredHA(batteries[1]);
+            }
         });
     });
     // batteries[0].onStateUpdate(async (state: BatteryState) => {
