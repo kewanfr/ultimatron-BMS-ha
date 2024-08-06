@@ -254,12 +254,32 @@ async function stopMonitor() {
             }
             else if (message.toString("utf-8").toLowerCase() === "restart") {
                 // await process.exit(0);
-                console.log("Restart App PM2");
-                await (0, child_process_1.execSync)("pm2 restart batt");
+                try {
+                    console.log("Restart App PM2");
+                    await client.publish("ultimatron/response", "Restart PM2");
+                    await (0, child_process_1.execSync)("pm2 restart batt");
+                }
+                catch (error) {
+                    await client.publish("ultimatron/response", "Error restarting PM2:" + error);
+                    console.error("Error restarting PM2:", error);
+                }
             }
             else if (message.toString("utf-8").toLowerCase() === "crash") {
                 console.log("crash App");
+                await client.publish("ultimatron/response", "Crash App");
                 await process.exit(0);
+            }
+            else if (message.toString("utf-8").toLowerCase() === "logs") {
+                // exec logs and send to mqtt
+                try {
+                    console.log("Get logs");
+                    const logs = await (0, child_process_1.execSync)("pm2 logs batt");
+                    await client.publish("ultimatron/response", logs.toString());
+                }
+                catch (error) {
+                    await client.publish("ultimatron/response", "Error getting logs:" + error);
+                    console.error("Error getting logs:", error);
+                }
             }
         });
     });
