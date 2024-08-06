@@ -254,7 +254,12 @@ async function stopMonitor() {
             }
             else if (message.toString("utf-8").toLowerCase() === "restart") {
                 // await process.exit(0);
+                console.log("Restart App PM2");
                 await (0, child_process_1.execSync)("pm2 restart batt");
+            }
+            else if (message.toString("utf-8").toLowerCase() === "crash") {
+                console.log("crash App");
+                await process.exit(0);
             }
         });
     });

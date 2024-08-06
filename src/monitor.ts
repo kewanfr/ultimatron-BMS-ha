@@ -347,7 +347,11 @@ async function stopMonitor() {
         batteryDiscoveredHA(batteries[1]);
       } else if (message.toString("utf-8").toLowerCase() === "restart") {
         // await process.exit(0);
+        console.log("Restart App PM2");
         await execSync("pm2 restart batt");
+      }else if (message.toString("utf-8").toLowerCase() === "crash") {
+        console.log("crash App")
+        await process.exit(0);
       }
     });
   });
