@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import config from "./config.json";
-
+import { exec, execSync } from "child_process";
 // startHomeassitantMQTTService(config.mqttUrl, "121001123020216");
 // startHomeassitantMQTTService(config.mqttUrl, "1220020DA00217");
 // startHomeassitantMQTTService(config.mqttUrl, config.user, config.password)
@@ -258,54 +258,58 @@ async function updateDatas(batteries: UltimatronBattery[]) {
   // console.log(batteries[1].name, state2);
 }
 
-(async () => {
-  const batteries = await UltimatronBattery.findAll(
-    60000,
-    2,
-    false,
-    10 * 60 * 1000
-  );
+var batteries: UltimatronBattery[] = [];
+var monitorInterval: NodeJS.Timeout;
+async function monitor() {
+  console.log("Starting Monitor");
+  batteries = await UltimatronBattery.findAll(60000, 2, false, 10 * 60 * 1000);
 
-  if (batteries.length < 2) {
-    console.error("Not enough batteries found");
-    return;
-  }
-
-  if (batteries[0].name.includes("217")) {
+  if (batteries.length >= 2 && batteries[0].name.includes("217")) {
     const tmp = batteries[0];
     batteries[0] = batteries[1];
     batteries[1] = tmp;
   }
 
-  batteries[0].commonName = "100Ah";
-  batteries[1].commonName = "200Ah";
+  if (batteries[0]) {
+    batteries[0].commonName = "100Ah";
+    batteryDiscoveredHA(batteries[0]);
+    subscribeToBatteryChanges(batteries[0]);
+  }
 
-  // console.log(batteries);
-
-  console.log("Starting Monitor");
-
-  batteryDiscoveredHA(batteries[0]);
-  subscribeToBatteryChanges(batteries[0]);
-
-  batteryDiscoveredHA(batteries[1]);
-  subscribeToBatteryChanges(batteries[1]);
+  if (batteries[1]) {
+    batteries[1].commonName = "200Ah";
+    batteryDiscoveredHA(batteries[1]);
+    subscribeToBatteryChanges(batteries[1]);
+  }
 
   await updateDatas(batteries);
-  setInterval(async () => {
+  monitorInterval = setInterval(async () => {
     await updateDatas(batteries);
   }, config.updateInterval || 2 * 60 * 1000); // 2 * 60 * 1000
+}
+
+async function stopMonitor() {
+  clearInterval(monitorInterval);
+  if (batteries[0]) batteries[0].shutdown();
+  if (batteries[1]) batteries[1].shutdown();
+}
+
+(async () => {
+  // console.log(batteries);
 
   client.subscribe(`ultimatron/cmd`, async (err: Error) => {
     console.log("[mqtt] Subscribed to discharge events", err);
 
-    client.on("message", (topic: string, message: Buffer) => {
+    client.on("message", async (topic: string, message: Buffer) => {
       // console.log("[mqtt]> " + topic, message.toString("utf8"));
-      if (message.toString("utf8") === "reload") {
+      if (message.toString("utf8").toLowerCase() === "reload") {
         console.log("Refetch data");
         updateDatas(batteries);
-      } else if (message.toString("utf8") === "sendConfs") {
+      } else if (message.toString("utf8").toLowerCase() === "sendConfs") {
         batteryDiscoveredHA(batteries[0]);
         batteryDiscoveredHA(batteries[1]);
+      } else if (message.toString("utf-8").toLowerCase() === "restart") {
+        await execSync("pm2 restart batt");
       }
     });
   });

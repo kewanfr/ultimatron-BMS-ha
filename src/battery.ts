@@ -216,9 +216,9 @@ export class UltimatronBattery {
     }
   }
 
-  private async connect() {
+  public async connect() {
     if (!this.connected) {
-      console.log("connecting to device");
+      // console.log("connecting to device");
       await this.device.connectAsync();
       this.connected = true;
 
@@ -260,7 +260,7 @@ export class UltimatronBattery {
     }
   }
 
-  private async disconnect() {
+  public async disconnect() {
     const device = this.device;
     if (device) {
       await device.disconnectAsync();

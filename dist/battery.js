@@ -143,7 +143,7 @@ class UltimatronBattery {
     }
     async connect() {
         if (!this.connected) {
-            console.log("connecting to device");
+            // console.log("connecting to device");
             await this.device.connectAsync();
             this.connected = true;
             const { characteristics } = await this.device.discoverSomeServicesAndCharacteristicsAsync([
