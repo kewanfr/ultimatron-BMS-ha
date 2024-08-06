@@ -346,8 +346,8 @@ async function stopMonitor() {
         batteryDiscoveredHA(batteries[0]);
         batteryDiscoveredHA(batteries[1]);
       } else if (message.toString("utf-8").toLowerCase() === "restart") {
-        await process.exit(0);
-        // await execSync("pm2 restart batt");
+        // await process.exit(0);
+        await execSync("pm2 restart batt");
       }
     });
   });

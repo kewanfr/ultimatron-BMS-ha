@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_json_1 = __importDefault(require("./config.json"));
+const child_process_1 = require("child_process");
 // startHomeassitantMQTTService(config.mqttUrl, "121001123020216");
 // startHomeassitantMQTTService(config.mqttUrl, "1220020DA00217");
 // startHomeassitantMQTTService(config.mqttUrl, config.user, config.password)
@@ -252,8 +253,8 @@ async function stopMonitor() {
                 batteryDiscoveredHA(batteries[1]);
             }
             else if (message.toString("utf-8").toLowerCase() === "restart") {
-                await process.exit(0);
-                // await execSync("pm2 restart batt");
+                // await process.exit(0);
+                await (0, child_process_1.execSync)("pm2 restart batt");
             }
         });
     });
