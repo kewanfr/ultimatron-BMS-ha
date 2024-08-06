@@ -257,7 +257,8 @@ async function stopMonitor() {
                 try {
                     console.log("Restart App PM2");
                     await client.publish("ultimatron/response", "Restart PM2");
-                    await (0, child_process_1.execSync)("pm2 restart batt");
+                    const response = await (0, child_process_1.execSync)("pm2 restart batt");
+                    console.log(response);
                 }
                 catch (error) {
                     await client.publish("ultimatron/response", "Error restarting PM2:" + error);
@@ -274,6 +275,7 @@ async function stopMonitor() {
                 try {
                     console.log("Get logs");
                     const logs = await (0, child_process_1.execSync)("pm2 logs batt");
+                    console.log(logs.toString());
                     await client.publish("ultimatron/response", logs.toString());
                 }
                 catch (error) {

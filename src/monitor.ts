@@ -350,7 +350,8 @@ async function stopMonitor() {
         try {
           console.log("Restart App PM2");
           await client.publish("ultimatron/response", "Restart PM2");
-          await execSync("pm2 restart batt");
+          const response = await execSync("pm2 restart batt");
+          console.log(response);
         } catch (error) {
           await client.publish(
             "ultimatron/response",
@@ -367,6 +368,7 @@ async function stopMonitor() {
         try {
           console.log("Get logs");
           const logs = await execSync("pm2 logs batt");
+          console.log(logs.toString());
           await client.publish("ultimatron/response", logs.toString());
         } catch (error) {
           await client.publish(
