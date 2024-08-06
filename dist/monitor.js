@@ -212,6 +212,28 @@ async function stopMonitor() {
 }
 (async () => {
     // console.log(batteries);
+    const batteries = await battery_1.UltimatronBattery.findAll(60000, 2, false, 10 * 60 * 1000);
+    if (batteries.length < 2) {
+        console.error("Not enough batteries found");
+        return;
+    }
+    if (batteries[0].name.includes("217")) {
+        const tmp = batteries[0];
+        batteries[0] = batteries[1];
+        batteries[1] = tmp;
+    }
+    batteries[0].commonName = "100Ah";
+    batteries[1].commonName = "200Ah";
+    // console.log(batteries);
+    console.log("Starting Monitor");
+    batteryDiscoveredHA(batteries[0]);
+    subscribeToBatteryChanges(batteries[0]);
+    batteryDiscoveredHA(batteries[1]);
+    subscribeToBatteryChanges(batteries[1]);
+    await updateDatas(batteries);
+    setInterval(async () => {
+        await updateDatas(batteries);
+    }, config_json_1.default.updateInterval || 2 * 60 * 1000); // 2 * 60 * 1000
     client.subscribe(`ultimatron/cmd`, async (err) => {
         console.log("[mqtt] Subscribed to discharge events", err);
         client.on("message", async (topic, message) => {
