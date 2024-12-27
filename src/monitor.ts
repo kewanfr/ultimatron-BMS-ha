@@ -171,9 +171,9 @@ function batteryDiscoveredHA(battery: UltimatronBattery) {
 
 function subscribeToBatteryChanges(battery: UltimatronBattery) {
   client.subscribe(
-    `homeassistant/switch/${battery.name}_discharge/#`,
+    `homeassistant/switch/${battery.name}_discharge/set`,
     async (err: Error) => {
-      console.log("[mqtt] Subscribed to discharge events", err);
+      console.log("[mqtt] Subscribed to discharge events", err, battery, battery.name);
 
       client.on("message", (topic: string, message: Buffer) => {
         console.log("[mqtt]> " + topic, message.toString("utf8"));
@@ -210,9 +210,9 @@ function subscribeToBatteryChanges(battery: UltimatronBattery) {
   );
 
   client.subscribe(
-    `homeassistant/switch/${battery.name}_charge/#`,
+    `homeassistant/switch/${battery.name}_charge/set`,
     async (err: Error) => {
-      console.log("[mqtt] Subscribed to charge events", err);
+      console.log("[mqtt] Subscribed to charge events", err, battery, battery.name);
 
       client.on("message", (topic: string, message: Buffer) => {
         console.log("[mqtt]> " + topic, message.toString("utf8"));
@@ -350,6 +350,22 @@ async function stopMonitor() {
 }
 
 (async () => {
+
+  // client.subscribe(
+  //   `homeassistant/switch/121001123020216_charge/set`,
+  //   async (err: Error) => {
+  //     console.log("[mqtt] Subscribed to charge events", err);
+
+  //     client.on("message", (topic: string, message: Buffer) => {
+  //       console.log("[mqtt]> " + topic, message.toString("utf8"));
+  //       const on = message.toString("utf8") === "ON";
+  //       console.log(on, message.toString("utf8"), topic)
+
+  //     });
+  //   }
+  // );
+
+
   // console.log(batteries);
   // const batteries = await UltimatronBattery.findAll(
   //   60000,
