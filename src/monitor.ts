@@ -178,6 +178,8 @@ function subscribeToBatteryChanges(battery: UltimatronBattery) {
       client.on("message", (topic: string, message: Buffer) => {
         console.log("[mqtt]> " + topic, message.toString("utf8"));
         const on = message.toString("utf8") === "ON";
+        console.log(on, battery.name, "discharge", topic)
+
         if (topic == `homeassistant/switch/${battery.name}_discharge/set`) {
           console.log("[mqtt] Toggling battery discharge switch");
           battery.toggleDischarging(on);
@@ -197,11 +199,12 @@ function subscribeToBatteryChanges(battery: UltimatronBattery) {
   client.subscribe(
     `homeassistant/switch/${battery.name}_charge/set`,
     async (err: Error) => {
-      console.log("[mqtt] Subscribed to discharge events", err);
+      console.log("[mqtt] Subscribed to charge events", err);
 
       client.on("message", (topic: string, message: Buffer) => {
         console.log("[mqtt]> " + topic, message.toString("utf8"));
         const on = message.toString("utf8") === "ON";
+        console.log(on, battery.name, "charge", topic)
         if (topic == `homeassistant/switch/${battery.name}_charge/set`) {
           console.log("[mqtt] Toggling battery discharge switch");
           battery.toggleCharging(on);
