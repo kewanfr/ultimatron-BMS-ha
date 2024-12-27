@@ -149,6 +149,23 @@ function subscribeToBatteryChanges(battery) {
             }
         });
     });
+    client.subscribe(`homeassistant/switch/${battery.name}_charge/set`, async (err) => {
+        console.log("[mqtt] Subscribed to discharge events", err);
+        client.on("message", (topic, message) => {
+            console.log("[mqtt]> " + topic, message.toString("utf8"));
+            const on = message.toString("utf8") === "ON";
+            if (topic == `homeassistant/switch/${battery.name}_charge/set`) {
+                console.log("[mqtt] Toggling battery discharge switch");
+                battery.toggleCharging(on);
+                // Immediately notify about state otherwise Homeassist will revert the toggle state
+                // later it will be updated with actual value
+                client.publish(`homeassistant/switch/${battery.name}_charge/state`, on ? "ON" : "OFF");
+            }
+            else {
+                console.log(`[mqtt] Ignoring message on topic ${topic}`);
+            }
+        });
+    });
 }
 function publishBatteryStateHA(battery, state) {
     var _a, _b;
