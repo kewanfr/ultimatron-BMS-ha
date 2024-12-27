@@ -180,7 +180,7 @@ function subscribeToBatteryChanges(battery: UltimatronBattery) {
         const on = message.toString("utf8") === "ON";
         console.log(on, battery.name, "discharge", topic)
 
-        if (topic == `homeassistant/switch/${battery.name}_discharge/set`) {
+        if (topic.includes(`/${battery.name}_discharge/set`)) {
           console.log("[mqtt] Toggling battery discharge switch");
           battery.toggleDischarging(on);
           // Immediately notify about state otherwise Homeassist will revert the toggle state
@@ -192,6 +192,19 @@ function subscribeToBatteryChanges(battery: UltimatronBattery) {
         } else {
           console.log(`[mqtt] Ignoring message on topic ${topic}`);
         }
+
+        // if (topic == `homeassistant/switch/${battery.name}_discharge/set`) {
+        //   console.log("[mqtt] Toggling battery discharge switch");
+        //   battery.toggleDischarging(on);
+        //   // Immediately notify about state otherwise Homeassist will revert the toggle state
+        //   // later it will be updated with actual value
+        //   client.publish(
+        //     `homeassistant/switch/${battery.name}_discharge/state`,
+        //     on ? "ON" : "OFF"
+        //   );
+        // } else {
+        //   console.log(`[mqtt] Ignoring message on topic ${topic}`);
+        // }
       });
     }
   );
@@ -205,8 +218,10 @@ function subscribeToBatteryChanges(battery: UltimatronBattery) {
         console.log("[mqtt]> " + topic, message.toString("utf8"));
         const on = message.toString("utf8") === "ON";
         console.log(on, battery.name, "charge", topic)
-        if (topic == `homeassistant/switch/${battery.name}_charge/set`) {
-          console.log("[mqtt] Toggling battery discharge switch");
+
+
+        if (topic.includes(`/${battery.name}_charge/set`)) {
+          console.log("[mqtt] Toggling battery charge switch");
           battery.toggleCharging(on);
           // Immediately notify about state otherwise Homeassist will revert the toggle state
           // later it will be updated with actual value
@@ -217,6 +232,19 @@ function subscribeToBatteryChanges(battery: UltimatronBattery) {
         } else {
           console.log(`[mqtt] Ignoring message on topic ${topic}`);
         }
+
+        // if (topic == `homeassistant/switch/${battery.name}_charge/set`) {
+        //   console.log("[mqtt] Toggling battery discharge switch");
+        //   battery.toggleCharging(on);
+        //   // Immediately notify about state otherwise Homeassist will revert the toggle state
+        //   // later it will be updated with actual value
+        //   client.publish(
+        //     `homeassistant/switch/${battery.name}_charge/state`,
+        //     on ? "ON" : "OFF"
+        //   );
+        // } else {
+        //   console.log(`[mqtt] Ignoring message on topic ${topic}`);
+        // }
       });
     }
   );
