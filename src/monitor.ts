@@ -171,7 +171,7 @@ function batteryDiscoveredHA(battery: UltimatronBattery) {
 
 function subscribeToBatteryChanges(battery: UltimatronBattery) {
   client.subscribe(
-    `homeassistant/switch/${battery.name}_discharge/set`,
+    `homeassistant/switch/${battery.name}_discharge/#`,
     async (err: Error) => {
       console.log("[mqtt] Subscribed to discharge events", err);
 
@@ -197,7 +197,7 @@ function subscribeToBatteryChanges(battery: UltimatronBattery) {
   );
 
   client.subscribe(
-    `homeassistant/switch/${battery.name}_charge/set`,
+    `homeassistant/switch/${battery.name}_charge/#`,
     async (err: Error) => {
       console.log("[mqtt] Subscribed to charge events", err);
 

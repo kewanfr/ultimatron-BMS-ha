@@ -132,7 +132,7 @@ function batteryDiscoveredHA(battery) {
     }));
 }
 function subscribeToBatteryChanges(battery) {
-    client.subscribe(`homeassistant/switch/${battery.name}_discharge/set`, async (err) => {
+    client.subscribe(`homeassistant/switch/${battery.name}_discharge/#`, async (err) => {
         console.log("[mqtt] Subscribed to discharge events", err);
         client.on("message", (topic, message) => {
             console.log("[mqtt]> " + topic, message.toString("utf8"));
@@ -150,7 +150,7 @@ function subscribeToBatteryChanges(battery) {
             }
         });
     });
-    client.subscribe(`homeassistant/switch/${battery.name}_charge/set`, async (err) => {
+    client.subscribe(`homeassistant/switch/${battery.name}_charge/#`, async (err) => {
         console.log("[mqtt] Subscribed to charge events", err);
         client.on("message", (topic, message) => {
             console.log("[mqtt]> " + topic, message.toString("utf8"));
