@@ -133,11 +133,11 @@ function batteryDiscoveredHA(battery) {
 }
 function subscribeToBatteryChanges(battery) {
     client.subscribe(`homeassistant/switch/${battery.name}_discharge/set`, async (err) => {
-        console.log("[mqtt] Subscribed to discharge events", err, battery, battery.name);
+        console.log("[mqtt] Subscribed to discharge events", err);
         client.on("message", (topic, message) => {
             console.log("[mqtt]> " + topic, message.toString("utf8"));
             const on = message.toString("utf8") === "ON";
-            console.log(on, battery.name, "discharge", topic);
+            // console.log(on, battery.name, "discharge", topic)
             if (topic.includes(`/${battery.name}_discharge/set`)) {
                 console.log("[mqtt] Toggling battery discharge switch");
                 battery.toggleDischarging(on);
@@ -163,11 +163,11 @@ function subscribeToBatteryChanges(battery) {
         });
     });
     client.subscribe(`homeassistant/switch/${battery.name}_charge/set`, async (err) => {
-        console.log("[mqtt] Subscribed to charge events", err, battery, battery.name);
+        console.log("[mqtt] Subscribed to charge events", err);
         client.on("message", (topic, message) => {
             console.log("[mqtt]> " + topic, message.toString("utf8"));
             const on = message.toString("utf8") === "ON";
-            console.log(on, battery.name, "charge", topic);
+            // console.log(on, battery.name, "charge", topic)
             if (topic.includes(`/${battery.name}_charge/set`)) {
                 console.log("[mqtt] Toggling battery charge switch");
                 battery.toggleCharging(on);
