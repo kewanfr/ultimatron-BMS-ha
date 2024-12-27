@@ -298,43 +298,45 @@ async function stopMonitor() {
         console.log("[mqtt] Subscribed to discharge events", err);
         client.on("message", async (topic, message) => {
             // console.log("[mqtt]> " + topic, message.toString("utf8"));
-            if (message.toString("utf8").toLowerCase() === "reload") {
-                console.log("Refetch data");
-                updateDatas(batteries);
-            }
-            else if (message.toString("utf8").toLowerCase() === "sendConfs") {
-                batteryDiscoveredHA(batteries[0]);
-                batteryDiscoveredHA(batteries[1]);
-            }
-            else if (message.toString("utf-8").toLowerCase() === "restart") {
-                // await process.exit(0);
-                try {
-                    console.log("Restart App PM2");
-                    await client.publish("ultimatron/response", "Restart PM2");
-                    const response = await (0, child_process_1.execSync)("pm2 restart batt");
-                    console.log(response);
+            if (topic.includes("ultimatron/cmd")) {
+                if (message.toString("utf8").toLowerCase() === "reload") {
+                    console.log("Refetch data");
+                    updateDatas(batteries);
                 }
-                catch (error) {
-                    await client.publish("ultimatron/response", "Error restarting PM2:" + error);
-                    console.error("Error restarting PM2:", error);
+                else if (message.toString("utf8").toLowerCase() === "sendconfs") {
+                    batteryDiscoveredHA(batteries[0]);
+                    batteryDiscoveredHA(batteries[1]);
                 }
-            }
-            else if (message.toString("utf-8").toLowerCase() === "crash") {
-                console.log("crash App");
-                await client.publish("ultimatron/response", "Crash App");
-                await process.exit(0);
-            }
-            else if (message.toString("utf-8").toLowerCase() === "logs") {
-                // exec logs and send to mqtt
-                try {
-                    console.log("Get logs");
-                    const logs = await (0, child_process_1.execSync)("pm2 logs batt");
-                    console.log(logs.toString());
-                    await client.publish("ultimatron/response", logs.toString());
+                else if (message.toString("utf-8").toLowerCase() === "restart") {
+                    // await process.exit(0);
+                    try {
+                        console.log("Restart App PM2");
+                        await client.publish("ultimatron/response", "Restart PM2");
+                        const response = await (0, child_process_1.execSync)("pm2 restart batt");
+                        console.log(response);
+                    }
+                    catch (error) {
+                        await client.publish("ultimatron/response", "Error restarting PM2:" + error);
+                        console.error("Error restarting PM2:", error);
+                    }
                 }
-                catch (error) {
-                    await client.publish("ultimatron/response", "Error getting logs:" + error);
-                    console.error("Error getting logs:", error);
+                else if (message.toString("utf-8").toLowerCase() === "crash") {
+                    console.log("crash App");
+                    await client.publish("ultimatron/response", "Crash App");
+                    await process.exit(0);
+                }
+                else if (message.toString("utf-8").toLowerCase() === "logs") {
+                    // exec logs and send to mqtt
+                    try {
+                        console.log("Get logs");
+                        const logs = await (0, child_process_1.execSync)("pm2 logs batt");
+                        console.log(logs.toString());
+                        await client.publish("ultimatron/response", logs.toString());
+                    }
+                    catch (error) {
+                        await client.publish("ultimatron/response", "Error getting logs:" + error);
+                        console.error("Error getting logs:", error);
+                    }
                 }
             }
         });

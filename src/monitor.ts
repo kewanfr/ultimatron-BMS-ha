@@ -410,43 +410,45 @@ async function stopMonitor() {
 
     client.on("message", async (topic: string, message: Buffer) => {
       // console.log("[mqtt]> " + topic, message.toString("utf8"));
-      if (message.toString("utf8").toLowerCase() === "reload") {
-        console.log("Refetch data");
-        updateDatas(batteries);
-      } else if (message.toString("utf8").toLowerCase() === "sendConfs") {
-        batteryDiscoveredHA(batteries[0]);
-        batteryDiscoveredHA(batteries[1]);
-      } else if (message.toString("utf-8").toLowerCase() === "restart") {
-        // await process.exit(0);
-        try {
-          console.log("Restart App PM2");
-          await client.publish("ultimatron/response", "Restart PM2");
-          const response = await execSync("pm2 restart batt");
-          console.log(response);
-        } catch (error) {
-          await client.publish(
-            "ultimatron/response",
-            "Error restarting PM2:" + error
-          );
-          console.error("Error restarting PM2:", error);
-        }
-      }else if (message.toString("utf-8").toLowerCase() === "crash") {
-        console.log("crash App")
-        await client.publish("ultimatron/response", "Crash App");
-        await process.exit(0);
-      } else if (message.toString("utf-8").toLowerCase() === "logs") {
-        // exec logs and send to mqtt
-        try {
-          console.log("Get logs");
-          const logs = await execSync("pm2 logs batt");
-          console.log(logs.toString());
-          await client.publish("ultimatron/response", logs.toString());
-        } catch (error) {
-          await client.publish(
-            "ultimatron/response",
-            "Error getting logs:" + error
-          );
-          console.error("Error getting logs:", error);
+      if (topic.includes("ultimatron/cmd")) {
+        if (message.toString("utf8").toLowerCase() === "reload") {
+          console.log("Refetch data");
+          updateDatas(batteries);
+        } else if (message.toString("utf8").toLowerCase() === "sendconfs") {
+          batteryDiscoveredHA(batteries[0]);
+          batteryDiscoveredHA(batteries[1]);
+        } else if (message.toString("utf-8").toLowerCase() === "restart") {
+          // await process.exit(0);
+          try {
+            console.log("Restart App PM2");
+            await client.publish("ultimatron/response", "Restart PM2");
+            const response = await execSync("pm2 restart batt");
+            console.log(response);
+          } catch (error) {
+            await client.publish(
+              "ultimatron/response",
+              "Error restarting PM2:" + error
+            );
+            console.error("Error restarting PM2:", error);
+          }
+        } else if (message.toString("utf-8").toLowerCase() === "crash") {
+          console.log("crash App")
+          await client.publish("ultimatron/response", "Crash App");
+          await process.exit(0);
+        } else if (message.toString("utf-8").toLowerCase() === "logs") {
+          // exec logs and send to mqtt
+          try {
+            console.log("Get logs");
+            const logs = await execSync("pm2 logs batt");
+            console.log(logs.toString());
+            await client.publish("ultimatron/response", logs.toString());
+          } catch (error) {
+            await client.publish(
+              "ultimatron/response",
+              "Error getting logs:" + error
+            );
+            console.error("Error getting logs:", error);
+          }
         }
       }
     });
